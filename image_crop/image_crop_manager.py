@@ -20,4 +20,13 @@ class ImageCropManager:
         s_mask = s_mgr.predict_from_file(image_path, image_name, image_file_extension)
         c_mass = get_center_of_mass(s_mask)
 
+        left = 0
+        top = 0
+        right = s_mask.size[0]
+        bottom = s_mask.size[1]
+
+        image_orig = Image.open(image_path + image_name + "." + image_file_extension)
+        image_cropped = image_orig.crop((left, top, right, bottom))
+
+        return image_cropped
 
