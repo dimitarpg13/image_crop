@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 dichotomous_image_segmentation = { path = "./dichotomous_image_segmentation/", develop = true }
+pillow = "^10.3.0"
 
 [build-system]
 requires = ["poetry-core"]
