@@ -29,7 +29,7 @@ class ImageCropManager:
         c_mass = get_center_of_mass(s_mask)
 
         left, top, right, bottom = get_image_bounds_for_given_aspect_ratio(
-            s_mask.size[0], s_mask.size[1], c_mass, aspect_ratio)
+            s_mask.shape[0], s_mask.shape[1], c_mass, aspect_ratio)
 
         image_orig = Image.open(image_path + image_name + "." + image_file_extension)
         image_cropped = image_orig.crop((left, top, right, bottom))
