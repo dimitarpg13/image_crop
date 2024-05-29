@@ -4,11 +4,44 @@ from dichotomous_image_segmentation.segmentation_manager import\
 from PIL import Image
 
 
-def get_image_bounds_for_given_aspect_ratio(image_width, image_height, center_of_mass, aspect_ratio):
-    left = 0
-    top = 0
-    right = image_width
-    bottom = image_height
+def get_image_bounds_for_given_aspect_ratio(image_height, image_width, center_of_mass, aspect_ratio):
+    x_coord_mass = center_of_mass[0]
+    y_coord_mass = center_of_mass[1]
+    if y_coord_mass >= image_height/2.0:
+        cropped_image_height = 2*(image_height- y_coord_mass)
+        if (x_coord_mass >= aspect_ratio*(image_height - y_coord_mass) and
+                image_width - x_coord_mass >= aspect_ratio*(image_height - y_coord_mass)):
+            cropped_image_width = 2*aspect_ratio*(image_height - y_coord_mass)
+        elif x_coord_mass < aspect_ratio * (image_height - y_coord_mass) <= image_width - x_coord_mass:
+            cropped_image_width = 2*x_coord_mass
+            cropped_image_height = 2*x_coord_mass/aspect_ratio
+        elif x_coord_mass >= aspect_ratio * (image_height - y_coord_mass) > image_width - x_coord_mass:
+            cropped_image_width = 2*(image_width - x_coord_mass)
+            cropped_image_height = 2*(image_width - x_coord_mass)/aspect_ratio
+        else:  # (x_coord_mass < aspect_ratio*(image_height - y_coord_mass) and
+               # image_width - x_coord_mass < aspect_ratio*(image_height - y_coord_mass))
+            cropped_image_width = 2 * min(x_coord_mass, image_width - x_coord_mass)
+            cropped_image_height = 2 * min(x_coord_mass, image_width - x_coord_mass) / aspect_ratio
+    else:  # y_coord_mass < image_height/2.0
+        cropped_image_height = 2*y_coord_mass
+        if (x_coord_mass >= aspect_ratio * y_coord_mass and
+                image_width - x_coord_mass >= aspect_ratio * y_coord_mass):
+            cropped_image_width = 2*aspect_ratio * y_coord_mass
+        elif x_coord_mass < aspect_ratio * y_coord_mass <= image_width - x_coord_mass:
+            cropped_image_width = 2 * x_coord_mass
+            cropped_image_height = 2 * x_coord_mass/aspect_ratio
+        elif x_coord_mass >= aspect_ratio * y_coord_mass > image_width - x_coord_mass:
+            cropped_image_width = 2*(image_width - x_coord_mass)
+            cropped_image_height = 2 * (image_width - x_coord_mass)/aspect_ratio
+        else:  # x_coord_mass < aspect_ratio * y_coord_mass and image_width - x_coord_mass < aspect_ratio * y_coord_mass
+            cropped_image_width = 2 * min(x_coord_mass, image_width - x_coord_mass)
+            cropped_image_height = 2 * min(x_coord_mass, image_width - x_coord_mass) / aspect_ratio
+
+    left = round(x_coord_mass - cropped_image_width/2.0)
+    top = round(image_height - (y_coord_mass + cropped_image_height/2.0))
+    right = round(x_coord_mass + cropped_image_width/2.0)
+    bottom = round(y_coord_mass + cropped_image_height/2.0)
+
     return left, top, right, bottom
 
 

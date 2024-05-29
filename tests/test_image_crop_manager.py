@@ -19,6 +19,7 @@ class TestImageCropManager(unittest.TestCase):
         #(x_coord_center_of_mass, y_coord_center_of_mass) = get_center_of_mass(mask)
         #self.assertEqual(x_coord_center_of_mass, 300)
         #self.assertEqual(y_coord_center_of_mass, 360)
+        cropped_image.save(image_path + image_name + "_mask.jpeg")
         self.assertTrue(True)
 
 
