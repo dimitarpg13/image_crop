@@ -12,16 +12,23 @@ class TestImageCropManager(unittest.TestCase):
     def setUp(self):
         self.ic_manager = ImageCropManager()
 
-    def test_get_cropped_image(self):
+    def test_get_cropped_image_3_4(self):
         image_path = IC_HOME + "/" + DATASET_PATH
         image_name = 'smiling-man'
         cropped_image = self.ic_manager.get_cropped_image(image_path, image_name, 'jpeg', 3.0/4.0)
 
         self.assertEqual(cropped_image.size[0], 308)
         self.assertEqual(cropped_image.size[1], 410)
-        #cropped_image.save(image_path + image_name + "_cropped.jpeg")
+        cropped_image.save(image_path + image_name + "_3_4_cropped.jpeg")
 
+    def test_get_cropped_image_4_3(self):
+        image_path = IC_HOME + "/" + DATASET_PATH
+        image_name = 'smiling-man'
+        cropped_image = self.ic_manager.get_cropped_image(image_path, image_name, 'jpeg', 4.0/3.0)
 
+        self.assertEqual(cropped_image.size[0], 547)
+        self.assertEqual(cropped_image.size[1], 410)
+        cropped_image.save(image_path + image_name + "_4_3_cropped.jpeg")
 
 if __name__ == '__main__':
     unittest.main()
