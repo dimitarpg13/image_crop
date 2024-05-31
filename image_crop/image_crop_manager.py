@@ -39,7 +39,8 @@ def get_image_bounds_for_given_aspect_ratio(image_height, image_width, center_of
             cropped_image_height = 2 * min(x_coord_mass, image_width - x_coord_mass) / aspect_ratio
 
     left = round(x_coord_mass - cropped_image_width / 2.0)
-    top = round(image_height - (y_coord_mass + cropped_image_height / 2.0))
+    #top = round(image_height - cropped_image_height)#(y_coord_mass + cropped_image_height / 2.0))
+    top = round(y_coord_mass - cropped_image_height / 2.0)
     right = left + round(cropped_image_width) # round(x_coord_mass + cropped_image_width / 2.0)
     bottom = top+ round(cropped_image_height) #round(y_coord_mass + cropped_image_height / 2.0)
 
@@ -49,6 +50,9 @@ def get_image_bounds_for_given_aspect_ratio(image_height, image_width, center_of
 class ImageCropManager:
     def __init__(self):
         self.s_mgr = SegmentationManager(DEVICE)
+        self.c_mass = None
+        self.s_mask = None
+        self.im_mask = None
 
     def get_cropped_image(self, image_path, image_name, image_file_extension, aspect_ratio):
         """
@@ -59,13 +63,13 @@ class ImageCropManager:
         :return PIL::Image instance of the cropped image
         """
 
-        s_mask = self.s_mgr.predict_from_file(image_path, image_name, image_file_extension)
-        c_mass = get_center_of_mass(s_mask)
+        self.s_mask = self.s_mgr.predict_from_file(image_path, image_name, image_file_extension)
+        self.c_mass = get_center_of_mass(self.s_mask)
+        self.seg_image = Image.fromarray(self.s_mask)
 
         left, top, right, bottom = get_image_bounds_for_given_aspect_ratio(
-            s_mask.shape[0], s_mask.shape[1], c_mass, aspect_ratio)
+            self.s_mask.shape[0], self.s_mask.shape[1], self.c_mass, aspect_ratio)
 
         image_orig = Image.open(image_path + image_name + "." + image_file_extension)
         image_cropped = image_orig.crop((left, top, right, bottom))
-
         return image_cropped
