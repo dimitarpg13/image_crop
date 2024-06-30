@@ -2,13 +2,25 @@
 name = "image-crop"
 version = "0.1.0"
 description = ""
-authors = ["Dimitar Gueorguiev <dimitar_pg13@hotmail.com>"]
+authors = ["Dimitar Gueorguiev"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.10"
 dichotomous_image_segmentation = { path = "./dichotomous_image_segmentation/", develop = true }
 pillow = "^10.3.0"
+scikit-image = "^0.23.2"
+matplotlib = "^3.9.0"
+scikit-learn = "^1.5.0"
+pooch = "^1.8.1"
+pytest = "^8.2.2"
+torch = "2.2"
+cuml-cu12 = {version = "^24.6.1", platform = "linux", source = "nvidia"}
+
+[[tool.poetry.source]]
+name = "nvidia"
+url = "https://pypi.nvidia.com"
+priority = "supplemental"
 
 [build-system]
 requires = ["poetry-core"]

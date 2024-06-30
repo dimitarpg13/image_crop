@@ -1,3 +1,4 @@
 [submodule "dichotomous_image_segmentation"]
 	path = dichotomous_image_segmentation
 	url = https://github.com/dimitarpg13/dichotomous_image_segmentation.git
+    branch = python_v3.10_refactor
