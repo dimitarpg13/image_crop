@@ -49,29 +49,18 @@ def get_cropped_image_height_and_width(image_height, image_width, center_of_mass
      then crop the image width so that it fit and crop additionally the image hight so that the aspect ratio is
      guaranteed. We do implement similar logic if the center of mass is in the lower half of the image.
     """
-    above_mass_center = image_height - center_of_mass[1]
-    below_mass_center = center_of_mass[1]
+    below_mass_center = image_height - center_of_mass[1]
+    above_mass_center = center_of_mass[1]
     mass_center_right = image_width - center_of_mass[0]
     mass_center_left = center_of_mass[0]
-    if below_mass_center >= image_height / 2.0: # mass center in the upper half of the image
-        cropped_image_height = 2 * above_mass_center
-        if (mass_center_left >= aspect_ratio * above_mass_center and
-                mass_center_right >= aspect_ratio * above_mass_center):
-            cropped_image_width = 2 * aspect_ratio * above_mass_center
-        elif mass_center_left < aspect_ratio * above_mass_center <= mass_center_right:
-            cropped_image_width = 2 * mass_center_left
-            cropped_image_height = 2 * mass_center_left / aspect_ratio
-        elif mass_center_left >= aspect_ratio * above_mass_center > mass_center_right:
-            cropped_image_width = 2 * mass_center_right
-            cropped_image_height = 2 * mass_center_right / aspect_ratio
-        else:  # (mass_center_left < aspect_ratio * above_mass_center and
-               # mass_center_right < aspect_ratio * above_mass_center)
-            cropped_image_width = 2 * min(mass_center_left, mass_center_right)
-            cropped_image_height = 2 * min(mass_center_left, mass_center_right) / aspect_ratio
-    else:  # below_mass_center < image_height / 2.0 - mass center in the lower half of the image
+    if (
+        above_mass_center >= image_height / 2.0
+    ):  # mass center in the upper half of the image
         cropped_image_height = 2 * below_mass_center
-        if (mass_center_left >= aspect_ratio * below_mass_center and
-                mass_center_right >= aspect_ratio * below_mass_center):
+        if (
+            mass_center_left >= aspect_ratio * below_mass_center
+            and mass_center_right >= aspect_ratio * below_mass_center
+        ):
             cropped_image_width = 2 * aspect_ratio * below_mass_center
         elif mass_center_left < aspect_ratio * below_mass_center <= mass_center_right:
             cropped_image_width = 2 * mass_center_left
@@ -80,9 +69,30 @@ def get_cropped_image_height_and_width(image_height, image_width, center_of_mass
             cropped_image_width = 2 * mass_center_right
             cropped_image_height = 2 * mass_center_right / aspect_ratio
         else:  # (mass_center_left < aspect_ratio * below_mass_center and
-               # mass_center_right < aspect_ratio * below_mass_center)
+            # mass_center_right < aspect_ratio * below_mass_center)
             cropped_image_width = 2 * min(mass_center_left, mass_center_right)
-            cropped_image_height = 2 * min(mass_center_left, mass_center_right) / aspect_ratio
+            cropped_image_height = (
+                2 * min(mass_center_left, mass_center_right) / aspect_ratio
+            )
+    else:  # above_mass_center < image_height / 2.0 - mass center in the lower half of the image
+        cropped_image_height = 2 * above_mass_center
+        if (
+            mass_center_left >= aspect_ratio * above_mass_center
+            and mass_center_right >= aspect_ratio * above_mass_center
+        ):
+            cropped_image_width = 2 * aspect_ratio * above_mass_center
+        elif mass_center_left < aspect_ratio * above_mass_center <= mass_center_right:
+            cropped_image_width = 2 * mass_center_left
+            cropped_image_height = 2 * mass_center_left / aspect_ratio
+        elif mass_center_left >= aspect_ratio * above_mass_center > mass_center_right:
+            cropped_image_width = 2 * mass_center_right
+            cropped_image_height = 2 * mass_center_right / aspect_ratio
+        else:  # (mass_center_left < aspect_ratio * above_mass_center and
+            # mass_center_right < aspect_ratio * above_mass_center)
+            cropped_image_width = 2 * min(mass_center_left, mass_center_right)
+            cropped_image_height = (
+                2 * min(mass_center_left, mass_center_right) / aspect_ratio
+            )
 
     return cropped_image_height, cropped_image_width
 
@@ -128,13 +138,8 @@ def get_image_bounds_vertically_mass_centered_no_offset(image_height, image_widt
 
     left = round(x_coord_mass - cropped_image_width / 2.0)
     right = left + round(cropped_image_width)
-    if y_coord_mass >= image_height / 2.0:
-        top = round(y_coord_mass - cropped_image_height / 2.0)
-        bottom = top + round(cropped_image_height)
-
-    else:
-        bottom = 2 * y_coord_mass
-        top = bottom - cropped_image_height
+    top = max(y_coord_mass - cropped_image_height / 2.0, 0)
+    bottom = max(y_coord_mass + cropped_image_height / 2.0, 0)
 
     return left, top, right, bottom
 
@@ -189,30 +194,46 @@ def get_image_bounds_vertically_mass_centered_with_offset(image_height, image_wi
             pixel_segmentation_mgr.compute_vertical_offset(y_coord_mass, cropped_image_height))
     left = round(x_coord_mass - cropped_image_width / 2.0)
     right = left + round(cropped_image_width)
+    top = max(y_coord_mass - cropped_image_height / 2.0, 0)
+    bottom = max(y_coord_mass + cropped_image_height / 2.0, 0)
+
     if y_coord_mass >= image_height / 2.0:
-        top = round(y_coord_mass - cropped_image_height / 2.0)
         top_with_vertical_offset = top
-        vertical_cutoff = image_height - vertical_offset_top - cropped_image_height - vertical_offset_bottom
-        if vertical_cutoff > 0: # we will be cutting off the top of the segment of interest
+        vertical_cutoff = (
+            image_height
+            - vertical_offset_top
+            - cropped_image_height
+            - vertical_offset_bottom
+        )
+        if (
+            vertical_cutoff > 0
+        ):  # we will be cutting off the top of the segment of interest
             if vertical_cutoff < top:
                 top_with_vertical_offset = top - vertical_cutoff
             else:
                 top_with_vertical_offset = 0
 
-        bottom_with_vertical_offset = top_with_vertical_offset + round(cropped_image_height)
+        bottom_with_vertical_offset = top_with_vertical_offset + round(
+            cropped_image_height
+        )
 
     else:
-        bottom = 2 * y_coord_mass
         bottom_with_vertical_offset = bottom
-        vertical_cutoff = image_height - cropped_image_height - vertical_offset_bottom - vertical_offset_top
+        vertical_cutoff = (
+            image_height
+            - cropped_image_height
+            - vertical_offset_bottom
+            - vertical_offset_top
+        )
 
-        if vertical_cutoff > 0: # we will be cutting off the bottom of the segment of interest
+        if (
+            vertical_cutoff > 0
+        ):  # we will be cutting off the bottom of the segment of interest
             bottom_with_vertical_offset = bottom + vertical_cutoff
 
         top_with_vertical_offset = bottom_with_vertical_offset - cropped_image_height
 
     return left, top_with_vertical_offset, right, bottom_with_vertical_offset
-
 
 class ImageCropManager:
     def __init__(self, vertical_centering=VerticalCentering.CENTER_ON_MASS_CENTER_WITH_OFFSET):
